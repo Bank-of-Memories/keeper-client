@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+    <style>
+      ::selection {
+        background:transparent;
+      }
+    </style>
+</head>
+<body>
+    <style>
+        * {
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+        }
+
+        canvas {
+            background: #F2F4F8;
+        }
+
+        #credsEarned {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 48px;
+            height: 48px;
+        }
+    </style>
+    <canvas id="credsEarned"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script>
+<script>
+    var donutEl = document.getElementById("credsEarned").getContext("2d");
+
+    var data = [
+        {
+            value: 200,
+            color:"#F4511E",
+            highlight: "#F4511E",
+            label: "Red"
+        },
+        {
+            value: 54.6,
+            color: "#cecece",
+            highlight: "#cecece",
+            label: "Yellow"
+        }
+    ];
+
+    var options = {
+        segmentShowStroke : false,
+        segmentStrokeWidth : 0,
+        percentageInnerCutout : 70,
+        animation: false,
+        responsive: true,
+        maintainAspectRatio: true,
+        showTooltips: false
+    };
+
+    var donut = new Chart(donutEl).Doughnut(data, options);
+    
+
+    new QWebChannel(qt.webChannelTransport, function (channel) {
+        window.handler = channel.objects.handler;
+
+        setInterval(() => {
+            handler.test2(function(retVal) {
+                // console.error as console.log message don't show up in the python console
+                donut.removeData(1);
+                donut.addData(retVal, 1);
+                donut.update();
+                console.error(JSON.stringify(retVal));
+            });
+        }, 3000);
+    });
+</script>
+</body>
+</html>
